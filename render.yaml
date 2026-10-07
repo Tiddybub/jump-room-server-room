@@ -1,0 +1,16 @@
+# One-click Blueprint for Render: New + > Blueprint > this repository.
+services:
+  - type: web
+    name: jump-room-server-room
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    numInstances: 1
+    autoDeployTrigger: commit
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: HUB_URL
+        value: https://jump-room.netlify.app
