@@ -1,4 +1,4 @@
-"""Cut every part outline in two passes: pass 1 at 0.165 in deep, pass 2 the finish lap through.
+"""Cut every part outline in two equal passes: pass 1 halfway through, pass 2 the finish lap through.
 
 ROUGHING lap (same path as the finish lap): Z remapped so its floor is Z_P1 instead of 3.81;
   its ramp keeps its X/Y and is rescaled from the plunge height A_R.
@@ -14,7 +14,9 @@ from groups import parse_groups
 
 SRC, DST = sys.argv[1], sys.argv[2]
 IN = 25.4
-Z_P1 = 0.71 * IN - 0.165 * IN       # 13.843
+TOP = 0.71 * IN
+Z_THRU = -0.254
+Z_P1 = round(TOP - (TOP - Z_THRU) / 2, 3)   # pass 1 takes half the depth: 8.890
 A_R = 21.590                        # feed-plunge height of the roughing ramps
 OLD_RFLOOR = 3.810
 TAB_OLD, TAB_Z = 4.826, 3.810
