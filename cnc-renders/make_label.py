@@ -2,7 +2,7 @@
 """Generate an engraved-text label program (Tankside.MMG style G-code) and a preview picture.
 
 Units: millimetres (the Tankside.MMG sample is metric), Z0 = bottom of stock / spoilboard.
-Usage: python3 make_label.py "hello world" out_dir
+Usage: python3 make_label.py "hello world" out_dir [font_file]
 
 Smooth-running version:
   * fill scans along Y (down the letter stems) so runs are long and reversals are few
@@ -10,6 +10,7 @@ Smooth-running version:
   * one full-depth pass, 50% stepover, nearest-neighbour ordering -> about half the cut time
 """
 import math
+import os
 import sys
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -31,7 +32,8 @@ Z_CLEAR = STOCK_T + 0.125 * IN
 F_PLUNGE = 1270.0            # 50 ipm
 F_CUT = 3810.0               # 150 ipm
 RES = 0.1                    # mm per pixel for the glyph raster
-FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+FONT = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts", "PirataOne.woff")
+FONT_NAME = os.path.splitext(os.path.basename(FONT))[0]
 LINE_TOL = 0.06              # mm, polyline simplification
 ARC_TOL = 0.08               # mm, arc fitting
 SMOOTH = 4                   # +/- points of moving average on the raw raster contour
@@ -364,7 +366,7 @@ f1 = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 
 f2 = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
 d.text((bx, 24), f"{name}.MMG  -  engraved label, top view", fill=(40, 40, 45), font=f1)
 d.text((bx, 66), f"stock 20 x 20 x 0.71 in Baltic birch  |  text pocketed {DEPTH / IN:.3f} in deep, {PASSES} passes  |  "
-       f"tool 1/8 in end mill (assumed)  |  text {text_w_mm / IN:.1f} x {text_h_mm / IN:.1f} in, centred  |  "
+       f"font {FONT_NAME}  |  tool 1/8 in end mill (assumed)  |  text {text_w_mm / IN:.1f} x {text_h_mm / IN:.1f} in, centred  |  "
        f"~{est_min:.1f} min cutting",
        fill=(40, 40, 45), font=f2)
 y0 = P(0, 0)[1] + 30
