@@ -31,9 +31,9 @@ STOCK_W = 20 * IN            # 508.0 mm
 STOCK_H = 20 * IN
 STOCK_T = 0.71 * IN          # 18.034 mm Baltic birch
 DEPTH = 0.165 * IN           # 4.191 mm
-TOOL_DIA = 6.0               # 6 mm end mill
+TOOL_DIA = 6.0               # 6 mm compression bit
 STEPOVER = 0.5 * TOOL_DIA
-PASSES = 2                   # depth passes for the fill (Baltic birch); wall pass runs once at final depth
+PASSES = 1                   # full 0.165 in in one pass: compression bit needs its down-cut flutes at the top face for clean edges
 TEXT_WIDTH = 12 * IN         # label width across the board (font size is set from this; do not change)
 Z_RAPID = 32.385             # same safe height the Tankside program uses
 Z_CLEAR = STOCK_T + 0.125 * IN
@@ -329,7 +329,7 @@ def fmt(v):
 
 cut_len, n_plunge = 0.0, 0
 emit("M03")
-lines.append(f"({TEXT.upper()} LABEL {DEPTH / IN:.3f}IN DEEP IN 0.71IN BALTIC BIRCH 6MM TOOL)")
+lines.append(f"({TEXT.upper()} LABEL {DEPTH / IN:.3f}IN DEEP IN 0.71IN BALTIC BIRCH 6MM COMPRESSION BIT, SINGLE PASS)")
 emit(f"G0X{fmt(STOCK_W / 2)}Y{fmt(STOCK_H / 2)}Z{fmt(Z_RAPID)}")
 emit(f"G0Z{fmt(Z_CLEAR)}")
 
@@ -399,8 +399,8 @@ f1 = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 
 f2 = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
 INK = (40, 40, 45)
 d.text((bx, 24), f"{name}.MMG  -  engraved label, top view (simulated from the program)", fill=INK, font=f1)
-d.text((bx, 66), f"stock 20 x 20 x 0.71 in Baltic birch  |  {DEPTH / IN:.3f} in deep, {PASSES} passes  |  "
-       f"font {FONT_NAME}  |  6 mm end mill  |  text {text_w_mm / IN:.1f} x {text_h_mm / IN:.1f} in, centred  |  "
+d.text((bx, 66), f"stock 20 x 20 x 0.71 in Baltic birch  |  {DEPTH / IN:.3f} in deep, {PASSES} pass{'es' if PASSES > 1 else ''}  |  "
+       f"font {FONT_NAME}  |  6 mm compression bit  |  text {text_w_mm / IN:.1f} x {text_h_mm / IN:.1f} in, centred  |  "
        f"~{est_min:.1f} min", fill=INK, font=f2)
 y0 = by + STOCK_H * S + 30
 d.line([(bx, y0), (bx + STOCK_W * S, y0)], fill=INK, width=2)
