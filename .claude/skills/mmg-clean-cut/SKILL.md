@@ -94,7 +94,8 @@ Scripts are in `scripts/` next to this file. Run them with `python3 -I` (needs P
    Do not tune a threshold to make it pass.
 
 4. **Deliver**: save to `cnc-renders/<job>/` with the map picture, commit and push, send the
-   program to the user. Report in a short table: labels changed (count, depth), parts (pass 1 Z,
+   program to the user. Name delivered programs `<original name>-Depthchange.MMG`
+   (e.g. `I1-5in-Depthchange.MMG`); send several together in one message, never zipped. Report in a short table: labels changed (count, depth), parts (pass 1 Z,
    pass 2 Z, extra laps removed), the tab decision, and anything left alone and why.
 
 ## Watch-outs to tell the user
