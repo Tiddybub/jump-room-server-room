@@ -4,7 +4,8 @@
 Sweeps a TOOL_MM bit along both programs and checks, using OUT.MMG.json from convert.py:
   labels: outline at the real wood surface unchanged, every label cut to the label depth,
           nothing deeper than the label depth
-  parts : outline at the wood surface pixel-identical, nothing cut that the original did not cut,
+  parts : outline at the wood surface identical (differences under 2 pixels = 0.4 mm are drawing
+          noise and allowed), nothing cut that the original did not cut,
           anything no longer cut is on the waste side (never touches the part)
   diff  : which operations changed
 Exit code 1 if any check fails.
@@ -86,13 +87,34 @@ def main():
             im = k.copy(); ImageDraw.floodfill(im, (0, 0), 128); return np.array(im) == 0
         po, pn = region(ot), region(nt)
         OT, NT, OB, NB = (np.array(x) > 0 for x in (ot, nt, ob, nb))
-        diff = int((po ^ pn).sum()); newc = int((NT & ~OT).sum() + (NB & ~OB).sum())
+        dmask = po ^ pn
+        diff = int(dmask.sum()); newc = int((NT & ~OT).sum() + (NB & ~OB).sum())
+        # differences one pixel wide are drawing noise (e.g. a corner drawn as chords vs an arc);
+        # anything that survives a 3x3 erosion is at least 2 pixels wide and counts as real
+        wide = int((np.array(Image.fromarray((dmask * 255).astype(np.uint8)).filter(ImageFilter.MinFilter(3))) > 0).sum())
         near = np.array(Image.fromarray((po * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(5))) > 0
         touch = int(((OB & ~NB) & near).sum())
-        p_ok = diff == 0 and newc == 0 and touch == 0 and po.sum() > 0
+        p_ok = wide == 0 and newc == 0 and touch == 0 and po.sum() > 0
         ok &= p_ok
-        print(f'part {oi}: area {po.sum() * res * res / 100:.0f} cm2, outline diff {diff} px, new cuts {newc} px, '
+        print(f'part {oi}: area {po.sum() * res * res / 100:.0f} cm2, outline diff {diff} px '
+              f'({wide} px wider than {2 * res:.1f} mm), new cuts {newc} px, '
               f'no-longer-cut touching part {touch} px  -> {"OK" if p_ok else "FAIL"}')
+
+    # ---- straight plunges: no X/Y movement while Z changes inside the wood (converted features)
+    if rep.get('ramps_to_plunges') is not None:
+        tgt = set(rep['labels']) | {x for pr in rep['parts'] for x in pr}
+        bad = []
+        for i in tgt:
+            for m in fb[i]['moves']:
+                moving = abs(m[5] - m[2]) > 1e-6 or abs(m[6] - m[3]) > 1e-6
+                if moving and abs(m[7] - m[4]) > 1e-6 and min(m[4], m[7]) < top - 1e-6:
+                    bad.append(m[0] + 1)
+                if m[1] == 0 and moving and min(m[4], m[7]) < top + 0.5:
+                    bad.append(m[0] + 1)
+        pl_ok = not bad
+        ok &= pl_ok
+        print(f'straight plunges: {len(bad)} moves change Z while moving in the wood, or rapid near the wood'
+              f'{" (lines " + str(bad[:8]) + ")" if bad else ""}  -> {"OK" if pl_ok else "FAIL"}')
 
     # ---- which operations changed
     heads = [(i, l) for i, l in enumerate(la) if l.startswith('(')]

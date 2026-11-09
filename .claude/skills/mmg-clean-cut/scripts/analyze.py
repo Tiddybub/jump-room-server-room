@@ -29,7 +29,8 @@ def classify(feats, top):
         elif op.startswith('POCKET') and f['first_floor'] >= top - LABEL_MAX_DEPTH:
             f['kind'] = 'label'
         elif op.startswith('POCKET') and not inside_part(f):
-            f['kind'] = 'label?'          # engraved on the sheet scrap, e.g. a sheet ID badge
+            f['kind'] = 'label'           # engraved on the sheet scrap: the sheet ID badge (I9, B2 ...)
+            f['sheet_id'] = True
         elif op.startswith('POCKET'):
             f['kind'] = 'pocket'
         elif op.startswith('SLOT'):
@@ -63,7 +64,7 @@ def main():
         if f['kind'] in ('hole', 'slot', 'pocket') and '--all' not in sys.argv:
             continue
         x0, y0, x1, y1 = f['bbox']
-        print(f"{f['id']:3d}  {f['kind']:10s}  {f['op'][:18]:18s}  {str(floors(f, top)[:4]):34s} "
+        print(f"{f['id']:3d}  {('sheet-id' if f.get('sheet_id') else f['kind']):10s}  {f['op'][:18]:18s}  {str(floors(f, top)[:4]):34s} "
               f"{x0:7.1f},{y0:7.1f} {x1 - x0:6.1f}x{y1 - y0:6.1f}")
     counts = {}
     for f in feats: counts[f['kind']] = counts.get(f['kind'], 0) + 1
@@ -77,7 +78,7 @@ def main():
     W, H = int((maxx - minx) * S), int((maxy - miny) * S) + 150
     img = Image.new('RGB', (W, H), 'white'); d = ImageDraw.Draw(img)
     P = lambda x, y: ((x - minx) * S, (maxy - y) * S + 150)
-    col = {'label': (220, 30, 30), 'label?': (240, 140, 0), 'part-outer': (30, 100, 220), 'part-rough': (30, 100, 220)}
+    col = {'label': (220, 30, 30), 'part-outer': (30, 100, 220), 'part-rough': (30, 100, 220)}
     for f in feats:
         c = col.get(f['kind'], (190, 190, 190))
         for m in f['cut']:
@@ -85,14 +86,14 @@ def main():
                 d.line([P(*p) for p in move_pts(m)], fill=c, width=2 if f['kind'] in col else 1)
     fnt = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 16)
     for f in feats:
-        if f['kind'] in ('label', 'label?', 'part-outer'):
+        if f['kind'] in ('label', 'part-outer'):
             x0, y0, x1, y1 = f['bbox']
             d.text(P(x0, y1 + 6 / S), str(f['id']), fill=(0, 0, 0), font=fnt)
     f1 = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 28)
     f2 = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 20)
     name = os.path.splitext(os.path.basename(a.program))[0]
     d.text((20, 12), f'{name}  -  feature map', fill=(30, 30, 35), font=f1)
-    d.text((20, 52), 'red = labels (auto)   orange = maybe a label (engraved on scrap, deep)   blue = part outlines   grey = holes/slots/pockets', fill=(30, 30, 35), font=f2)
+    d.text((20, 52), 'red = labels (incl. the sheet ID badge, e.g. I9 / B2, bottom right)   blue = part outlines   grey = holes/slots/pockets', fill=(30, 30, 35), font=f2)
     d.text((20, 80), 'numbers = feature ids for --extra-labels / --not-labels', fill=(30, 30, 35), font=f2)
     os.makedirs(a.out_dir, exist_ok=True)
     out = os.path.join(a.out_dir, f'{name}_map.png')

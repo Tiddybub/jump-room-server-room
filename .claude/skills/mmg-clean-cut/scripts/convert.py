@@ -9,10 +9,12 @@
            An extra outer-cut lap that runs outside the part (returns to the ramp-end point
            before the finish lap) is removed. Tabs keep the thickness the old program really
            left (old roughing floor) unless --programmed-tabs.
+  plunges: in every converted feature the bit plunges straight down to cutting depth, then moves
+           (ramp-ins become a rapid above the wood + straight plunge; ramp-outs become straight lifts).
 
 Usage: python3 convert.py IN.MMG OUT.MMG [--stock-in 0.71] [--label-depth-in 0.165]
            [--extra-labels 103,104] [--not-labels 7,8] [--part-pass1 half|<in>]
-           [--no-labels] [--no-parts] [--programmed-tabs]
+           [--no-labels] [--no-parts] [--programmed-tabs] [--keep-ramps] [--plunge-feed 5080]
 Writes OUT.MMG and OUT.MMG.json (what was changed; used by verify.py).
 """
 import argparse, json, os, sys
@@ -20,6 +22,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import math
 from gcode import read_lines, write_lines, parse, floors, program_top, set_z, ZWORD, move_pts, move_len
 from analyze import classify
+import noramp
 
 IN = 25.4
 
@@ -39,6 +42,8 @@ def main():
     ap.add_argument('--no-labels', action='store_true')
     ap.add_argument('--no-parts', action='store_true')
     ap.add_argument('--programmed-tabs', action='store_true')
+    ap.add_argument('--keep-ramps', action='store_true', help='keep ramp entries instead of straight plunges')
+    ap.add_argument('--plunge-feed', default=None, help='feed (mm/min) for straight plunges; default = the program plunge feed')
     a = ap.parse_args()
 
     lines = read_lines(a.src)
@@ -150,6 +155,16 @@ def main():
                   f'removed extra lap: {removed} moves; {tab_note}')
 
     out = [edits.get(i, l) for i, l in enumerate(lines) if i not in drop]
+
+    # ---------------- straight plunges: no X/Y movement while Z changes in the converted features
+    if not a.keep_ramps:
+        targets = sorted(set(report['labels']) | {x for p in report['parts'] for x in p})
+        out, n_in, n_out, warns = noramp.apply(out, targets, top, a.plunge_feed)
+        for w in warns:
+            print('  note:', w)
+        report['ramps_to_plunges'] = n_in; report['ramp_outs_to_lifts'] = n_out
+        report['plunge_feed'] = a.plunge_feed or 'program plunge feed'
+        print(f'straight plunges: {n_in} ramp-ins replaced, {n_out} ramp-outs replaced')
     write_lines(a.dst, out)
     report['lines_removed'] = len(drop); report['lines_edited'] = len(edits)
     json.dump(report, open(a.dst + '.json', 'w'), indent=1)
