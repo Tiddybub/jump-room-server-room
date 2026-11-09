@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+"""Prove a converted program cuts the same shapes as the original.
+
+Sweeps a TOOL_MM bit along both programs and checks, using OUT.MMG.json from convert.py:
+  labels: outline at the real wood surface unchanged, every label cut to the label depth,
+          nothing deeper than the label depth
+  parts : outline at the wood surface pixel-identical, nothing cut that the original did not cut,
+          anything no longer cut is on the waste side (never touches the part)
+  diff  : which operations changed
+Exit code 1 if any check fails.
+
+Usage: python3 verify.py ORIGINAL.MMG CONVERTED.MMG [--tool-mm 6]
+"""
+import argparse, difflib, json, math, os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import numpy as np
+from gcode import read_lines, parse, move_pts
+from PIL import Image, ImageChops, ImageDraw, ImageFilter
+
+
+def raster(moves, box, zlimit, res, dia):
+    x0, y1 = box[0], box[3]
+    W = int((box[2] - box[0]) / res) + 1; H = int((box[3] - box[1]) / res) + 1
+    im = Image.new('L', (W, H), 0); d = ImageDraw.Draw(im); r = dia / 2 / res
+    def flush(run):
+        if len(run) > 1: d.line(run, fill=255, width=max(1, int(round(2 * r))))
+        for q in run[::max(1, int(r / 2))] + run[-1:]:
+            d.ellipse([q[0] - r, q[1] - r, q[0] + r, q[1] + r], fill=255)
+    for m in moves:
+        if m[1] == 0: continue
+        pts = move_pts(m); L = sum(math.dist(pts[i], pts[i + 1]) for i in range(len(pts) - 1)) or 1e-9
+        run, acc = [], 0.0
+        for i in range(len(pts) - 1):
+            seg = math.dist(pts[i], pts[i + 1]); k = max(1, int(seg / res))
+            for s in range(k + 1):
+                t = s / k; z = m[4] + (m[7] - m[4]) * (acc + seg * t) / L
+                p = ((pts[i][0] + (pts[i + 1][0] - pts[i][0]) * t - x0) / res,
+                     (y1 - (pts[i][1] + (pts[i + 1][1] - pts[i][1]) * t)) / res)
+                if z < zlimit: run.append(p)
+                elif run: flush(run); run = []
+            acc += seg
+        if run: flush(run)
+    return im
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('orig'); ap.add_argument('new'); ap.add_argument('--tool-mm', type=float, default=6.0)
+    a = ap.parse_args()
+    rep = json.load(open(a.new + '.json'))
+    top, zl, D = rep['stock_in'] * 25.4, rep['label_z'], a.tool_mm
+    la, lb = read_lines(a.orig), read_lines(a.new)
+    fa, _ = parse(la); fb, _ = parse(lb)
+    ok = True
+    if len(fa) != len(fb):
+        print(f'FAIL feature count changed {len(fa)} -> {len(fb)}'); sys.exit(1)
+
+    # ---- labels
+    if rep['labels']:
+        res, px2 = 0.05, 0.0025
+        t = dict(old=0, extra=0, lost=0, shallow=0, deeper=0); worst = 0
+        for i in rep['labels']:
+            A, B = fa[i], fb[i]
+            bx = A['bbox']; box = (bx[0] - D, bx[1] - D, bx[2] + D, bx[3] + D)
+            ot = raster(A['cut'], box, top, res, D); nt = raster(B['cut'], box, top, res, D)
+            nf = raster(B['cut'], box, zl + 0.01, res, D); nd = raster(B['cut'], box, zl - 0.01, res, D)
+            ex = ImageChops.subtract(nt, ot).histogram()[255] * px2
+            t['old'] += ot.histogram()[255] * px2; t['extra'] += ex
+            t['lost'] += ImageChops.subtract(ot, nt).histogram()[255] * px2
+            t['shallow'] += ImageChops.subtract(nt, nf).histogram()[255] * px2
+            t['deeper'] += nd.histogram()[255] * px2; worst = max(worst, ex)
+        lab_ok = worst < 0.5 and t['deeper'] == 0 and t['shallow'] < 0.002 * t['old'] + 1
+        ok &= lab_ok
+        print(f"labels ({len(rep['labels'])}): outline {t['old']:.0f} mm2; new cut outside old {t['extra']:.2f} mm2 "
+              f"(worst label {worst:.2f}); no longer cut {t['lost']:.2f} mm2; not at full depth {t['shallow']:.2f} mm2; "
+              f"deeper than Z{zl}: {t['deeper']:.2f} mm2  -> {'OK' if lab_ok else 'FAIL'}")
+
+    # ---- parts
+    for ri, oi in rep['parts']:
+        bx = fa[oi]['bbox']; box = (bx[0] - 10, bx[1] - 10, bx[2] + 10, bx[3] + 10)
+        res = max(0.2, math.sqrt((box[2] - box[0]) * (box[3] - box[1]) / 8e6))
+        om = fa[ri]['cut'] + fa[oi]['cut']; nm = fb[ri]['cut'] + fb[oi]['cut']
+        ot, nt = raster(om, box, top, res, D), raster(nm, box, top, res, D)
+        ob, nb = raster(om, box, 0.0, res, D), raster(nm, box, 0.0, res, D)
+        def region(k):
+            im = k.copy(); ImageDraw.floodfill(im, (0, 0), 128); return np.array(im) == 0
+        po, pn = region(ot), region(nt)
+        OT, NT, OB, NB = (np.array(x) > 0 for x in (ot, nt, ob, nb))
+        diff = int((po ^ pn).sum()); newc = int((NT & ~OT).sum() + (NB & ~OB).sum())
+        near = np.array(Image.fromarray((po * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(5))) > 0
+        touch = int(((OB & ~NB) & near).sum())
+        p_ok = diff == 0 and newc == 0 and touch == 0 and po.sum() > 0
+        ok &= p_ok
+        print(f'part {oi}: area {po.sum() * res * res / 100:.0f} cm2, outline diff {diff} px, new cuts {newc} px, '
+              f'no-longer-cut touching part {touch} px  -> {"OK" if p_ok else "FAIL"}')
+
+    # ---- which operations changed
+    heads = [(i, l) for i, l in enumerate(la) if l.startswith('(')]
+    changed = {}
+    for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, la, lb, autojunk=False).get_opcodes():
+        if tag != 'equal':
+            op = [h for i, h in heads if i <= i1][-1] if heads and heads[0][0] <= i1 else 'header'
+            changed[op] = changed.get(op, 0) + max(i2 - i1, j2 - j1)
+    for i, h in heads:
+        print(f'  {h:24s} {"changed " + str(changed[h]) + " lines" if h in changed else "unchanged"}')
+    print('ALL CHECKS PASSED' if ok else 'CHECKS FAILED')
+    sys.exit(0 if ok else 1)
+
+
+if __name__ == '__main__':
+    main()
