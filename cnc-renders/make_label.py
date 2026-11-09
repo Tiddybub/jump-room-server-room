@@ -20,11 +20,11 @@ OUT = sys.argv[2] if len(sys.argv) > 2 else "."
 IN = 25.4
 STOCK_W = 20 * IN            # 508.0 mm
 STOCK_H = 20 * IN
-STOCK_T = 18.0               # 18 mm (0.71 in) stock
+STOCK_T = 0.71 * IN          # 18.034 mm Baltic birch
 DEPTH = 0.165 * IN           # 4.191 mm
 TOOL_DIA = 0.125 * IN        # 1/8" end mill (assumed)
 STEPOVER = 0.5 * TOOL_DIA
-PASSES = 1                   # depth passes (full depth in one pass)
+PASSES = 2                   # depth passes for the fill (Baltic birch); wall pass runs once at final depth
 TEXT_WIDTH = 12 * IN         # label width across the board
 Z_RAPID = 32.385             # same safe height the Tankside program uses
 Z_CLEAR = STOCK_T + 0.125 * IN
@@ -290,7 +290,7 @@ def fmt(v):
 
 cut_len, n_plunge, n_arcs, n_lines_out = 0.0, 0, 0, 0
 emit("M03")
-lines.append(f"({TEXT.upper()} LABEL {DEPTH / IN:.3f}IN DEEP)")
+lines.append(f"({TEXT.upper()} LABEL {DEPTH / IN:.3f}IN DEEP IN 0.71IN BALTIC BIRCH)")
 emit(f"G0X{fmt(STOCK_W / 2)}Y{fmt(STOCK_H / 2)}Z{fmt(Z_RAPID)}")
 emit(f"G0Z{fmt(Z_CLEAR)}")
 
@@ -298,6 +298,8 @@ for p in range(1, PASSES + 1):
     z = STOCK_T - DEPTH * p / PASSES
     lines.append(f"(PASS {p} Z{fmt(z)})")
     for kind, pts in ordered:
+        if kind == "wall" and p != PASSES:
+            continue
         (x, y) = pts[0]
         emit(f"G0X{fmt(x)}Y{fmt(y)}")
         emit(f"G1Z{fmt(z)}F{F_PLUNGE:.1f}")
@@ -361,7 +363,7 @@ est_min = cut_len / F_CUT + n_plunge * ((Z_CLEAR - Z_BOTTOM) / F_PLUNGE + 0.02)
 f1 = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 34)
 f2 = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
 d.text((bx, 24), f"{name}.MMG  -  engraved label, top view", fill=(40, 40, 45), font=f1)
-d.text((bx, 66), f"stock 20 x 20 in x 18 mm (0.71 in)  |  text pocketed {DEPTH / IN:.3f} in deep in {PASSES} pass  |  "
+d.text((bx, 66), f"stock 20 x 20 x 0.71 in Baltic birch  |  text pocketed {DEPTH / IN:.3f} in deep, {PASSES} passes  |  "
        f"tool 1/8 in end mill (assumed)  |  text {text_w_mm / IN:.1f} x {text_h_mm / IN:.1f} in, centred  |  "
        f"~{est_min:.1f} min cutting",
        fill=(40, 40, 45), font=f2)
