@@ -14,17 +14,7 @@
   8,
   9,
   10,
-  11,
-  12,
-  13,
-  14,
-  15,
-  16,
   17,
-  18,
-  19,
-  20,
-  21,
   22,
   23,
   24,
@@ -316,10 +306,10 @@
    "tabs": "tabs Z4.826 kept"
   }
  ],
- "ramps_to_plunges": 82,
- "ramp_outs_to_lifts": 33,
+ "ramps_to_plunges": 72,
+ "ramp_outs_to_lifts": 23,
  "plunge_feed": "program plunge feed",
  "lines_removed": 1305,
- "lines_edited": 8465,
+ "lines_edited": 8013,
  "lines_inserted": 0
 }

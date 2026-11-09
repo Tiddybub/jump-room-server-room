@@ -28,11 +28,14 @@ why shallow labels came out fuzzy. Pick `--stock-in` from the file name / the to
 ## What it changes
 
 - **Labels**: one pass at the label depth. A label is
-  - any shallow engraving in a POCKET op (text, arrows, marks on the parts), and
+  - any shallow, letter-sized (45 mm or less) engraving in a POCKET op (text, arrows, marks), and
   - the **sheet ID badge**: the number engraved on the sheet scrap in the bottom-right corner
     (I9, I8, I7, I1, B1, B2, B8 ... and its ring on 3/4 sheets): engraving outside every part and
     within 300 mm of the sheet's bottom-right corner.
   If a label was cut in several step-downs, only the first step's path is kept.
+  Bigger shallow pockets are recesses (LED/wire channels, plate pockets: I1, I2) and stay as is.
+  Small recesses that aren't text (I1 #1, #3: 18 mm squares) are excluded with `--not-labels`:
+  look at the map's red features and ask if anything red isn't text.
 - **Parts**: every outline ends up as pass 1 at half depth + pass 2 = the finish lap through
   (unchanged). Layouts recognised (`scripts/parts.py`):
   - **A** pass-1 lap and through cut are separate features with the same outline: ROUGHING +
@@ -113,5 +116,6 @@ I9 (`cnc-renders/i9/`): 42 labels + the I9 sheet badge, 9 parts in two passes (Z
 Z-0.254), tabs kept at Z3.81, straight plunges everywhere converted. Made with:
 `python3 -I scripts/convert.py I9-75in.MMG out.MMG` and it passes verify.
 
-I1-I8 (`cnc-renders/i1-i8/`): straight plunges, 0.5 in stock for I1-I5, 0.71 in for I6-I8.
+I1-I8 (`cnc-renders/i1-i8/`): straight plunges, 0.5 in stock for I1-I5, 0.71 in for I6-I8;
+I1 with `--not-labels 1,3`.
 Layouts: I1 = C, I2-I4 = B, I5-I8 = A. Left as is: I2 feature 201 (spiral), extra lap of I4 part 123.
