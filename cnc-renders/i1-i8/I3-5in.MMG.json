@@ -1,6 +1,6 @@
 {
- "stock_in": 0.47244,
- "label_z": 7.809,
+ "stock_in": 0.5,
+ "label_z": 8.509,
  "program_top": 12.700000000000001,
  "labels": [
   0,
@@ -24,7 +24,7 @@
    ],
    "outer": 116,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 327,
    "tabs": "tabs Z4.826 kept"
@@ -38,13 +38,16 @@
    ],
    "outer": 117,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 313,
    "tabs": "tabs Z4.826 kept"
   }
  ],
+ "ramps_to_plunges": 33,
+ "ramp_outs_to_lifts": 12,
+ "plunge_feed": "program plunge feed",
  "lines_removed": 640,
- "lines_edited": 1915,
+ "lines_edited": 1919,
  "lines_inserted": 0
 }

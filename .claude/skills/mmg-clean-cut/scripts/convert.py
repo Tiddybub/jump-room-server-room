@@ -135,7 +135,7 @@ def main():
     # ---------------- straight plunges: no X/Y movement while Z changes in the converted features
     if not a.keep_ramps:
         targets = sorted(set(report['labels']) | {x for p in report['parts'] for x in p['pass1'] + [p['outer']]})
-        out, n_in, n_out, warns = noramp.apply(out, targets, top, a.plunge_feed)
+        out, n_in, n_out, warns = noramp.apply(out, targets, top, a.plunge_feed, labels=set(report['labels']))
         for w in warns:
             print('  note:', w)
         report['ramps_to_plunges'] = n_in; report['ramp_outs_to_lifts'] = n_out

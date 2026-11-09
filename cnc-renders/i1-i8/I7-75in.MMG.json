@@ -292,6 +292,9 @@
    "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
   }
  ],
+ "ramps_to_plunges": 85,
+ "ramp_outs_to_lifts": 51,
+ "plunge_feed": "program plunge feed",
  "lines_removed": 440,
  "lines_edited": 8710,
  "lines_inserted": 0

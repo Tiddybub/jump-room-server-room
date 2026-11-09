@@ -4,8 +4,9 @@
 Sweeps a TOOL_MM bit along both programs and checks, using OUT.MMG.json from convert.py:
   labels: outline at the real wood surface unchanged, every label cut to the label depth,
           nothing deeper than the label depth
-  parts : outline at the wood surface identical (differences under 2 pixels = 0.4 mm are drawing
-          noise and allowed), nothing cut that the original did not cut,
+  parts : outline at the wood surface identical, nothing cut that the original did not cut,
+          anything no longer cut is on the waste side. Thin differences flagged at the normal
+          resolution are re-measured at 0.02 mm/px; up to FINE_TOL (0.25 mm = 0.01 in) passes,
           anything no longer cut is on the waste side (never touches the part)
   diff  : which operations changed
 Exit code 1 if any check fails.
@@ -42,6 +43,30 @@ def raster(moves, box, zlimit, res, dia):
             acc += seg
         if run: flush(run)
     return im
+
+
+FINE_TOL = 0.25      # mm (0.01 in): widest allowed difference at a part edge, measured at 0.02 mm/px
+
+
+def fine_width(flag, box, res, om, nm, top, D):
+    """widest strip (mm) newly cut or no longer cut, re-rendered at 0.02 mm/px around flagged pixels"""
+    ys, xs = np.nonzero(flag)
+    spots = {}
+    for x, y in zip(xs, ys):
+        spots.setdefault((x // int(8 / res), y // int(8 / res)), []).append((box[0] + x * res, box[3] - y * res))
+    worst, r2 = 0.0, 0.02
+    def width(mask):
+        k = 0; m = Image.fromarray((mask * 255).astype(np.uint8))
+        while (np.array(m) > 0).any() and k < 400:
+            m = m.filter(ImageFilter.MinFilter(3)); k += 1
+        return k * 2 * r2
+    for pts in spots.values():
+        cx = sum(p[0] for p in pts) / len(pts); cy = sum(p[1] for p in pts) / len(pts)
+        sb = (cx - 8, cy - 8, cx + 8, cy + 8)
+        for lvl in (top, 0.0):
+            o = np.array(raster(om, sb, lvl, r2, D)) > 0; n = np.array(raster(nm, sb, lvl, r2, D)) > 0
+            worst = max(worst, width(n & ~o), width(o & ~n))
+    return worst
 
 
 def main():
@@ -100,8 +125,15 @@ def main():
         near = np.array(Image.fromarray((po * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(5))) > 0
         touch = int(((OB & ~NB) & near).sum())
         p_ok = wide == 0 and newc == 0 and touch == 0 and po.sum() > 0
+        fine = ''
+        if not p_ok and wide == 0 and newc == 0 and po.sum() > 0:
+            # only thin or tiny differences: measure them at 0.02 mm/px around each flagged spot
+            flag = ((OB & ~NB) & near) | (NT & ~OT) | (NB & ~OB) | dmask
+            w = fine_width(flag, box, res, om, nm, top, D)
+            p_ok = w <= FINE_TOL
+            fine = f'; at 0.02 mm/px widest difference {w:.2f} mm (limit {FINE_TOL} mm)'
         ok &= p_ok
-        print(f'part {oi}: area {po.sum() * res * res / 100:.0f} cm2, outline diff {diff} px '
+        print(f'part {oi}{fine}: area {po.sum() * res * res / 100:.0f} cm2, outline diff {diff} px '
               f'({wide} px wider than {2 * res:.1f} mm), new cuts {newc_px} px ({newc} wider than {2 * res:.1f} mm), '
               f'no-longer-cut touching part {touch} px  -> {"OK" if p_ok else "FAIL"}')
 

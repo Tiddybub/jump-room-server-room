@@ -1,6 +1,6 @@
 {
- "stock_in": 0.47244,
- "label_z": 7.809,
+ "stock_in": 0.5,
+ "label_z": 8.509,
  "program_top": 12.700000000000001,
  "labels": [
   0,
@@ -44,7 +44,7 @@
    ],
    "outer": 202,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 89,
    "tabs": "tabs Z4.826 kept"
@@ -58,7 +58,7 @@
    ],
    "outer": 203,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 89,
    "tabs": "tabs Z4.826 kept"
@@ -72,7 +72,7 @@
    ],
    "outer": 204,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 82,
    "tabs": "tabs Z4.826 kept"
@@ -86,7 +86,7 @@
    ],
    "outer": 205,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 83,
    "tabs": "tabs Z4.826 kept"
@@ -100,7 +100,7 @@
    ],
    "outer": 206,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 57,
    "tabs": "tabs Z4.826 kept"
@@ -114,7 +114,7 @@
    ],
    "outer": 207,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 56,
    "tabs": "tabs Z4.826 kept"
@@ -128,7 +128,7 @@
    ],
    "outer": 208,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 56,
    "tabs": "tabs Z4.826 kept"
@@ -142,7 +142,7 @@
    ],
    "outer": 209,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 56,
    "tabs": "tabs Z4.826 kept"
@@ -156,7 +156,7 @@
    ],
    "outer": 210,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 57,
    "tabs": "tabs Z4.826 kept"
@@ -170,7 +170,7 @@
    ],
    "outer": 211,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 56,
    "tabs": "tabs Z4.826 kept"
@@ -184,7 +184,7 @@
    ],
    "outer": 212,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 56,
    "tabs": "tabs Z4.826 kept"
@@ -198,7 +198,7 @@
    ],
    "outer": 213,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 56,
    "tabs": "tabs Z4.826 kept"
@@ -212,7 +212,7 @@
    ],
    "outer": 214,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 56,
    "tabs": "tabs Z4.826 kept"
@@ -226,7 +226,7 @@
    ],
    "outer": 215,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 56,
    "tabs": "tabs Z4.826 kept"
@@ -240,7 +240,7 @@
    ],
    "outer": 216,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 56,
    "tabs": "tabs Z4.826 kept"
@@ -254,7 +254,7 @@
    ],
    "outer": 217,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 57,
    "tabs": "tabs Z4.826 kept"
@@ -268,7 +268,7 @@
    ],
    "outer": 218,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 57,
    "tabs": "tabs Z4.826 kept"
@@ -282,7 +282,7 @@
    ],
    "outer": 219,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 56,
    "tabs": "tabs Z4.826 kept"
@@ -296,7 +296,7 @@
    ],
    "outer": 220,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 89,
    "tabs": "tabs Z4.826 kept"
@@ -310,12 +310,15 @@
    ],
    "outer": 221,
    "layout": "B",
-   "pass1_z": 5.873,
+   "pass1_z": 6.223,
    "through_z": -0.254,
    "extra_lap_moves_removed": 85,
    "tabs": "tabs Z4.826 kept"
   }
  ],
+ "ramps_to_plunges": 82,
+ "ramp_outs_to_lifts": 33,
+ "plunge_feed": "program plunge feed",
  "lines_removed": 1305,
  "lines_edited": 8465,
  "lines_inserted": 0

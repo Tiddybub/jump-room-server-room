@@ -13,7 +13,7 @@ extra lap outside each part is removed.
 
 | Setting | Default | Flag |
 |---|---|---|
-| Real stock thickness | 3/4 in sheets (`*-75in`): 0.71 in = 18 mm. 1/2 in sheets (`*-5in`): 0.47244 in = 12 mm | `--stock-in` |
+| Real stock thickness | 3/4 in sheets (`*-75in`): 0.71 in (18 mm). 1/2 in sheets (`*-5in`): 0.5 in (user confirmed) | `--stock-in` |
 | Label depth, one pass | 0.165 in (Z13.843 in 0.71 stock) | `--label-depth-in` |
 | Part pass 1 depth | halfway through, so pass 2 isn't too heavy | `--part-pass1 half` or inches |
 | Bit | 6 mm compression | `verify.py --tool-mm` |
@@ -23,8 +23,7 @@ extra lap outside each part is removed.
 Programs are metric, Z0 = spoilboard / bottom of stock. The CAM assumes nominal stock (0.75 in:
 clearance Z24.130; 0.5 in: clearance Z17.780); real Baltic birch is metric (18 mm / 12 mm), which is
 why shallow labels came out fuzzy. Pick `--stock-in` from the file name / the top analyze reports.
-**Entry**: the user asked for straight plunges on I9, then for the I1-I8 batch said "2x pass only":
-that batch used `--keep-ramps`. Ask which they want if it's unclear for a new job.
+**Entry**: straight plunges (user confirmed for I9 and again for I1-I8). `--keep-ramps` only if asked.
 
 ## What it changes
 
@@ -50,8 +49,10 @@ that batch used `--keep-ramps`. Ask which they want if it's unclear for a new jo
   ramp that ran through air (CAM assumed thicker stock) into real wood outside the label's old
   outline; then only the in-wood part of the ramp is deepened (I1).
 - **Straight plunges** in everything converted: the bit never moves X/Y while Z is changing in the
-  wood. A ramp-in becomes a rapid above the wood to where the ramp ended, then a straight plunge to
-  the cutting depth; the cut then continues exactly as before. A ramp-out becomes a straight lift.
+  wood. A ramp-in that starts above the wood becomes a rapid to where the ramp ended + a straight
+  plunge. A ramp-in that starts inside the wood (pass 2 from the pass-1 floor, tab exits): in labels,
+  or where the lap cuts that stretch again later, plunge at the ramp start and follow its path at
+  depth; otherwise lift out, rapid to the ramp end, plunge there. A ramp-out becomes a straight lift.
 - **Tabs** keep the thickness the old program actually produced: if the old pass 1 cut straight
   across the tabs (no lifts), tab tops go down to the old pass-1 floor; if it lifted over them,
   tabs stay. `--programmed-tabs` keeps the CAM tab height instead.
@@ -110,5 +111,5 @@ I9 (`cnc-renders/i9/`): 42 labels + the I9 sheet badge, 9 parts in two passes (Z
 Z-0.254), tabs kept at Z3.81, straight plunges everywhere converted. Made with:
 `python3 -I scripts/convert.py I9-75in.MMG out.MMG` and it passes verify.
 
-I1-I8 (`cnc-renders/i1-i8/`): `--keep-ramps`, 12 mm stock for the 1/2 in sheets (I1-I5), 0.71 in
-for I6-I8. Layouts: I1 = C, I2-I4 = B, I5-I8 = A.
+I1-I8 (`cnc-renders/i1-i8/`): straight plunges, 0.5 in stock for I1-I5, 0.71 in for I6-I8.
+Layouts: I1 = C, I2-I4 = B, I5-I8 = A. Left as is: I2 feature 201 (spiral), extra lap of I4 part 123.
