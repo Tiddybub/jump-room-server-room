@@ -15,7 +15,7 @@ OUT = sys.argv[2] if len(sys.argv) > 2 else "."
 IN = 25.4
 STOCK_W = 20 * IN            # 508.0 mm
 STOCK_H = 20 * IN
-STOCK_T = 0.75 * IN          # 19.05 mm
+STOCK_T = 18.0               # 18 mm (0.71 in) stock
 DEPTH = 0.165 * IN           # 4.191 mm
 TOOL_DIA = 0.125 * IN        # 1/8" end mill (assumed)
 STEPOVER = 0.4 * TOOL_DIA
@@ -235,7 +235,7 @@ for paths in (fill_paths, wall_paths):
 f1 = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 34)
 f2 = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
 d.text((bx, 24), f"{name}.MMG  -  engraved label, top view", fill=(40, 40, 45), font=f1)
-d.text((bx, 66), f"stock 20 x 20 x 0.75 in  |  text pocketed {DEPTH / IN:.3f} in deep in {PASSES} passes  |  "
+d.text((bx, 66), f"stock 20 x 20 in x 18 mm (0.71 in)  |  text pocketed {DEPTH / IN:.3f} in deep in {PASSES} passes  |  "
        f"tool 1/8 in end mill (assumed)  |  text {text_w_mm / IN:.1f} x {text_h_mm / IN:.1f} in, centred",
        fill=(40, 40, 45), font=f2)
 # dimension lines
