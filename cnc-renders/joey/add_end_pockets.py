@@ -76,8 +76,8 @@ def P(e, u, v):
     """point u mm in from the toolpath end line, v across; part end edge is at u = R"""
     return (e['m'][0] + e['n'][0] * u + e['b'][0] * v, e['m'][1] + e['n'][1] * u + e['b'][1] * v)
 
-block = ['(END POCKETS: 8 PART ENDS, 76.2 MM (3 IN) LONG, FULL WIDTH, 9.0 MM DEEP TO Z%.3f)' % Z_FLOOR,
-         '(CUT FIRST, ONE PASS, STRAIGHT PLUNGE F%.0f, CUT F%.0f)' % (F_PLUNGE, F_CUT)]
+block = ['(END POCKETS - 8 PART ENDS - 76.2 MM LONG - FULL WIDTH - 9.0 MM DEEP TO Z%.3f)' % Z_FLOOR,
+         '(CUT FIRST - ONE PASS - STRAIGHT PLUNGE F%.0f - CUT F%.0f)' % (F_PLUNGE, F_CUT)]
 report = []
 for k, e in enumerate(ends, 1):
     u0, u1 = R, R + LENGTH - R                         # bit centre: part end .. shoulder - R
