@@ -12,7 +12,7 @@ Exit code 1 if any check fails.
 
 Usage: python3 verify.py ORIGINAL.MMG CONVERTED.MMG [--tool-mm 6]
 """
-import argparse, difflib, json, math, os, sys
+import argparse, difflib, json, math, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 from gcode import read_lines, parse, move_pts
@@ -77,10 +77,11 @@ def main():
               f"deeper than Z{zl}: {t['deeper']:.2f} mm2  -> {'OK' if lab_ok else 'FAIL'}")
 
     # ---- parts
-    for ri, oi in rep['parts']:
+    for row in rep['parts']:
+        ri, oi = row['pass1'][0], row['outer']
         bx = fa[oi]['bbox']; box = (bx[0] - 10, bx[1] - 10, bx[2] + 10, bx[3] + 10)
         res = max(0.2, math.sqrt((box[2] - box[0]) * (box[3] - box[1]) / 8e6))
-        om = fa[ri]['cut'] + fa[oi]['cut']; nm = fb[ri]['cut'] + fb[oi]['cut']
+        om = fa[ri]['cut'] + (fa[oi]['cut'] if oi != ri else []); nm = fb[ri]['cut'] + (fb[oi]['cut'] if oi != ri else [])
         ot, nt = raster(om, box, top, res, D), raster(nm, box, top, res, D)
         ob, nb = raster(om, box, 0.0, res, D), raster(nm, box, 0.0, res, D)
         def region(k):
@@ -88,7 +89,11 @@ def main():
         po, pn = region(ot), region(nt)
         OT, NT, OB, NB = (np.array(x) > 0 for x in (ot, nt, ob, nb))
         dmask = po ^ pn
-        diff = int(dmask.sum()); newc = int((NT & ~OT).sum() + (NB & ~OB).sum())
+        diff = int(dmask.sum())
+        er = lambda b: np.array(Image.fromarray((b * 255).astype(np.uint8)).filter(ImageFilter.MinFilter(3))) > 0
+        # new cuts: one-pixel specks are where a drawn round end-cap lands on the grid; 2 px wide is real
+        newc = int(er(NT & ~OT).sum() + er(NB & ~OB).sum())
+        newc_px = int((NT & ~OT).sum() + (NB & ~OB).sum())
         # differences one pixel wide are drawing noise (e.g. a corner drawn as chords vs an arc);
         # anything that survives a 3x3 erosion is at least 2 pixels wide and counts as real
         wide = int((np.array(Image.fromarray((dmask * 255).astype(np.uint8)).filter(ImageFilter.MinFilter(3))) > 0).sum())
@@ -97,12 +102,12 @@ def main():
         p_ok = wide == 0 and newc == 0 and touch == 0 and po.sum() > 0
         ok &= p_ok
         print(f'part {oi}: area {po.sum() * res * res / 100:.0f} cm2, outline diff {diff} px '
-              f'({wide} px wider than {2 * res:.1f} mm), new cuts {newc} px, '
+              f'({wide} px wider than {2 * res:.1f} mm), new cuts {newc_px} px ({newc} wider than {2 * res:.1f} mm), '
               f'no-longer-cut touching part {touch} px  -> {"OK" if p_ok else "FAIL"}')
 
     # ---- straight plunges: no X/Y movement while Z changes inside the wood (converted features)
     if rep.get('ramps_to_plunges') is not None:
-        tgt = set(rep['labels']) | {x for pr in rep['parts'] for x in pr}
+        tgt = set(rep['labels']) | {x for pr in rep['parts'] for x in pr['pass1'] + [pr['outer']]}
         bad = []
         for i in tgt:
             for m in fb[i]['moves']:
@@ -119,7 +124,8 @@ def main():
     # ---- which operations changed
     heads = [(i, l) for i, l in enumerate(la) if l.startswith('(')]
     changed = {}
-    for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, la, lb, autojunk=False).get_opcodes():
+    strip = lambda ls: [re.sub(r'^N\d+', '', l) for l in ls]          # compare without line numbers
+    for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, strip(la), strip(lb), autojunk=False).get_opcodes():
         if tag != 'equal':
             op = [h for i, h in heads if i <= i1][-1] if heads and heads[0][0] <= i1 else 'header'
             changed[op] = changed.get(op, 0) + max(i2 - i1, j2 - j1)

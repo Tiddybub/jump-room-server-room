@@ -13,33 +13,49 @@ extra lap outside each part is removed.
 
 | Setting | Default | Flag |
 |---|---|---|
-| Real stock thickness | 0.71 in Baltic birch (Z top = 18.034 mm) | `--stock-in` |
+| Real stock thickness | 3/4 in sheets (`*-75in`): 0.71 in = 18 mm. 1/2 in sheets (`*-5in`): 0.47244 in = 12 mm | `--stock-in` |
 | Label depth, one pass | 0.165 in (Z13.843 in 0.71 stock) | `--label-depth-in` |
 | Part pass 1 depth | halfway through, so pass 2 isn't too heavy | `--part-pass1 half` or inches |
 | Bit | 6 mm compression | `verify.py --tool-mm` |
 | Entry | straight plunge to full cutting depth, then move | `--keep-ramps` to keep ramps |
 | Plunge feed | the program's own plunge feed (F5080 = 200 ipm in I9) | `--plunge-feed` mm/min |
 
-Programs are metric, Z0 = spoilboard / bottom of stock. The CAM file often assumes 0.75 in stock
-(clearance Z24.130); the real sheet is 0.71 in, which is why shallow labels came out fuzzy.
+Programs are metric, Z0 = spoilboard / bottom of stock. The CAM assumes nominal stock (0.75 in:
+clearance Z24.130; 0.5 in: clearance Z17.780); real Baltic birch is metric (18 mm / 12 mm), which is
+why shallow labels came out fuzzy. Pick `--stock-in` from the file name / the top analyze reports.
+**Entry**: the user asked for straight plunges on I9, then for the I1-I8 batch said "2x pass only":
+that batch used `--keep-ramps`. Ask which they want if it's unclear for a new job.
 
 ## What it changes
 
 - **Labels**: one pass at the label depth. A label is
   - any shallow engraving in a POCKET op (text, arrows, marks on the parts), and
   - the **sheet ID badge**: the number engraved on the sheet scrap in the bottom-right corner
-    (I9, I8, I7, I1, B1, B2, B8 ... and its ring). Anything engraved outside every part counts.
+    (I9, I8, I7, I1, B1, B2, B8 ... and its ring on 3/4 sheets): engraving outside every part and
+    within 300 mm of the sheet's bottom-right corner.
   If a label was cut in several step-downs, only the first step's path is kept.
-- **Parts** (ROUGHING + OUTER CUTS pairs): pass 1 = the roughing lap at the pass-1 depth (it runs on
-  the finish path); pass 2 = the finish lap through, unchanged. An extra outer-cut lap that runs
-  *outside* the part is removed, but only when it is fully off the finish path and a full finish lap
-  follows. Otherwise the outer cut is left as is.
+- **Parts**: every outline ends up as pass 1 at half depth + pass 2 = the finish lap through
+  (unchanged). Layouts recognised (`scripts/parts.py`):
+  - **A** pass-1 lap and through cut are separate features with the same outline: ROUGHING +
+    OUTER CUTS (I6-I9), or an onion-skin OUTER op + a through OUTER op (I5). Pass-1 Z rescaled.
+  - **B** one feature: ramp, lap at a pass-1 floor, ramp, through laps (I2-I4). Same result.
+  - **C** one feature with a single through lap (I1): a copy of it at the pass-1 depth is inserted
+    first, then the bit lifts to its plunge height, goes back to the start and runs the original.
+  - anything else (e.g. a spiral that winds down with no laps, I2 feature 201) is left as is.
+  An extra through lap that runs *outside* the part is removed when a full finish lap follows it
+  and it runs off the finish path. Its end is found by, in order: it returns to its ramp end (I9);
+  it returns to where the cut first reaches through depth (I3); its point closest to that, with one
+  lap left after it, joined by a short (< 1.5 mm) connector (I4, I8). verify proves it was waste.
+- **Label ramps**: stretched from the plunge height (gentle) unless that would push a stretch of
+  ramp that ran through air (CAM assumed thicker stock) into real wood outside the label's old
+  outline; then only the in-wood part of the ramp is deepened (I1).
 - **Straight plunges** in everything converted: the bit never moves X/Y while Z is changing in the
   wood. A ramp-in becomes a rapid above the wood to where the ramp ended, then a straight plunge to
   the cutting depth; the cut then continues exactly as before. A ramp-out becomes a straight lift.
-- **Tabs** keep the thickness the old program actually produced: when the old roughing floor was
-  below the programmed tab top, tab tops are set to the old roughing floor. `--programmed-tabs`
-  keeps the CAM tab height instead.
+- **Tabs** keep the thickness the old program actually produced: if the old pass 1 cut straight
+  across the tabs (no lifts), tab tops go down to the old pass-1 floor; if it lifted over them,
+  tabs stay. `--programmed-tabs` keeps the CAM tab height instead.
+- **Line numbers** are renumbered N10, N20 ... (no gaps; inserted lines get numbers).
 - **Untouched**: holes, slots, deep pockets, feeds, everything else.
 
 ## Workflow
@@ -58,8 +74,9 @@ Scripts are in `scripts/` next to this file. Run them with `python3 -I` (needs P
 
 2. **Convert**
    ```
-   python3 -I scripts/convert.py IN.MMG OUT.MMG --stock-in 0.71
+   python3 -I scripts/convert.py IN.MMG OUT.MMG --stock-in 0.71 [--keep-ramps]
    ```
+   Read every `left as is` line and tell the user about those parts.
    Also writes `OUT.MMG.json`, which records what was changed and is needed by verify.
 
 3. **Verify. Never deliver a program that fails.**
@@ -71,7 +88,7 @@ Scripts are in `scripts/` next to this file. Run them with `python3 -I` (needs P
    - parts: outline identical (under 0.4 mm drawing noise), no new cuts, anything no longer cut is
      on the waste side
    - straight plunges: no move changes Z while moving X/Y in the wood
-   - operation summary: only ROUGHING, label POCKETs and OUTER CUTS changed
+   - operation summary (compared without line numbers): only part ops and label POCKETs changed
    If it fails, find out why (look at the per-part line, render the area) and fix the script.
    Do not tune a threshold to make it pass.
 
@@ -82,7 +99,6 @@ Scripts are in `scripts/` next to this file. Run them with `python3 -I` (needs P
 ## Watch-outs to tell the user
 
 - Pass 2 cuts about half the sheet thickness in one go; suggest watching the first part.
-- Line numbers (N…) have gaps where moves were removed; nearly every controller ignores that.
 - Slots and holes spiral down gradually and are not changed. Offer to rework them if they fuzz.
 - Straight plunges use the program's plunge feed (200 ipm in I9) for the full depth: about 4 mm
   for labels, about 9 mm for each part pass. If the bit struggles, rerun with a lower
@@ -93,3 +109,6 @@ Scripts are in `scripts/` next to this file. Run them with `python3 -I` (needs P
 I9 (`cnc-renders/i9/`): 42 labels + the I9 sheet badge, 9 parts in two passes (Z8.890 then
 Z-0.254), tabs kept at Z3.81, straight plunges everywhere converted. Made with:
 `python3 -I scripts/convert.py I9-75in.MMG out.MMG` and it passes verify.
+
+I1-I8 (`cnc-renders/i1-i8/`): `--keep-ramps`, 12 mm stock for the 1/2 in sheets (I1-I5), 0.71 in
+for I6-I8. Layouts: I1 = C, I2-I4 = B, I5-I8 = A.

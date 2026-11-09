@@ -13,11 +13,19 @@ IN = 25.4
 LABEL_MAX_DEPTH = 3.2      # mm below the program's assumed top: shallower first floor = label
 
 
+CORNER = 300.0            # mm: the sheet ID badge sits within this distance of the sheet's bottom-right
+
+
 def classify(feats, top):
-    parts = [f for f in feats if f['op'] and f['op'].upper().startswith('OUTER')]
+    parts = [f for f in feats if f['op'] and f['op'].upper().startswith(('OUTER', 'ROUGH'))]
     def inside_part(f):
         x0, y0, x1, y1 = f['bbox']
         return any(p['bbox'][0] <= x0 and p['bbox'][1] <= y0 and x1 <= p['bbox'][2] and y1 <= p['bbox'][3] for p in parts)
+    sheet_maxx = max(f['bbox'][2] for f in feats)
+    sheet_miny = min(f['bbox'][1] for f in feats)
+    def in_corner(f):
+        x0, y0, x1, y1 = f['bbox']
+        return x0 >= sheet_maxx - CORNER and y1 <= sheet_miny + CORNER
     for f in feats:
         op = (f['op'] or '').upper()
         fl = floors(f, top) or [round(f['zmin'], 3)]
@@ -28,8 +36,8 @@ def classify(feats, top):
             f['kind'] = 'part-outer'
         elif op.startswith('POCKET') and f['first_floor'] >= top - LABEL_MAX_DEPTH:
             f['kind'] = 'label'
-        elif op.startswith('POCKET') and not inside_part(f):
-            f['kind'] = 'label'           # engraved on the sheet scrap: the sheet ID badge (I9, B2 ...)
+        elif op.startswith('POCKET') and not inside_part(f) and in_corner(f):
+            f['kind'] = 'label'           # sheet ID badge (I9, B2 ...): bottom-right corner, outside the parts
             f['sheet_id'] = True
         elif op.startswith('POCKET'):
             f['kind'] = 'pocket'

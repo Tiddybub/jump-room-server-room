@@ -1,0 +1,415 @@
+{
+ "stock_in": 0.71,
+ "label_z": 13.843,
+ "program_top": 19.049999999999997,
+ "labels": [
+  53,
+  54,
+  55,
+  56,
+  57,
+  58,
+  59,
+  60,
+  61,
+  62,
+  63,
+  64,
+  65,
+  66,
+  67,
+  68,
+  69,
+  70,
+  71,
+  72,
+  73,
+  74,
+  75,
+  76,
+  77,
+  78,
+  79,
+  80,
+  81,
+  82,
+  83,
+  84,
+  85,
+  86,
+  87,
+  88,
+  89,
+  90,
+  91,
+  92,
+  93,
+  94,
+  95,
+  96,
+  97,
+  98,
+  99,
+  100,
+  101,
+  102,
+  103,
+  104,
+  107,
+  112,
+  113,
+  114,
+  115,
+  116
+ ],
+ "parts": [
+  {
+   "ids": [
+    0,
+    180
+   ],
+   "pass1": [
+    0
+   ],
+   "outer": 180,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 221,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    1,
+    181
+   ],
+   "pass1": [
+    1
+   ],
+   "outer": 181,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 220,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    2,
+    182
+   ],
+   "pass1": [
+    2
+   ],
+   "outer": 182,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 183,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    3,
+    183
+   ],
+   "pass1": [
+    3
+   ],
+   "outer": 183,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 184,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    4,
+    184
+   ],
+   "pass1": [
+    4
+   ],
+   "outer": 184,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 183,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    5,
+    185
+   ],
+   "pass1": [
+    5
+   ],
+   "outer": 185,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 184,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    6,
+    186
+   ],
+   "pass1": [
+    6
+   ],
+   "outer": 186,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 31,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    7,
+    187
+   ],
+   "pass1": [
+    7
+   ],
+   "outer": 187,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 427,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    8,
+    188
+   ],
+   "pass1": [
+    8
+   ],
+   "outer": 188,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 70,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    9,
+    189
+   ],
+   "pass1": [
+    9
+   ],
+   "outer": 189,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 70,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    10,
+    190
+   ],
+   "pass1": [
+    10
+   ],
+   "outer": 190,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 31,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    11,
+    191
+   ],
+   "pass1": [
+    11
+   ],
+   "outer": 191,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 31,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    12,
+    192
+   ],
+   "pass1": [
+    12
+   ],
+   "outer": 192,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 23,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    13,
+    193
+   ],
+   "pass1": [
+    13
+   ],
+   "outer": 193,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 23,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    14,
+    194
+   ],
+   "pass1": [
+    14
+   ],
+   "outer": 194,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 66,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    15,
+    195
+   ],
+   "pass1": [
+    15
+   ],
+   "outer": 195,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 64,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    16,
+    196
+   ],
+   "pass1": [
+    16
+   ],
+   "outer": 196,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 64,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    17,
+    197
+   ],
+   "pass1": [
+    17
+   ],
+   "outer": 197,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 64,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    18,
+    198
+   ],
+   "pass1": [
+    18
+   ],
+   "outer": 198,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 23,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    19,
+    199
+   ],
+   "pass1": [
+    19
+   ],
+   "outer": 199,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 23,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    20,
+    200
+   ],
+   "pass1": [
+    20
+   ],
+   "outer": 200,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 26,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    21,
+    201
+   ],
+   "pass1": [
+    21
+   ],
+   "outer": 201,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 27,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  },
+  {
+   "ids": [
+    22,
+    202
+   ],
+   "pass1": [
+    22
+   ],
+   "outer": 202,
+   "layout": "A",
+   "pass1_z": 8.89,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 91,
+   "tabs": "tabs Z4.826 -> Z3.81 (thickness the old pass 1 left)"
+  }
+ ],
+ "lines_removed": 2677,
+ "lines_edited": 9731,
+ "lines_inserted": 0
+}

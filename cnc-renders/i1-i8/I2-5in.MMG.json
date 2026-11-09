@@ -1,0 +1,322 @@
+{
+ "stock_in": 0.47244,
+ "label_z": 7.809,
+ "program_top": 12.700000000000001,
+ "labels": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+  24,
+  25,
+  26,
+  27,
+  28,
+  29
+ ],
+ "parts": [
+  {
+   "ids": [
+    202
+   ],
+   "pass1": [
+    202
+   ],
+   "outer": 202,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 89,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    203
+   ],
+   "pass1": [
+    203
+   ],
+   "outer": 203,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 89,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    204
+   ],
+   "pass1": [
+    204
+   ],
+   "outer": 204,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 82,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    205
+   ],
+   "pass1": [
+    205
+   ],
+   "outer": 205,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 83,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    206
+   ],
+   "pass1": [
+    206
+   ],
+   "outer": 206,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 57,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    207
+   ],
+   "pass1": [
+    207
+   ],
+   "outer": 207,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 56,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    208
+   ],
+   "pass1": [
+    208
+   ],
+   "outer": 208,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 56,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    209
+   ],
+   "pass1": [
+    209
+   ],
+   "outer": 209,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 56,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    210
+   ],
+   "pass1": [
+    210
+   ],
+   "outer": 210,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 57,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    211
+   ],
+   "pass1": [
+    211
+   ],
+   "outer": 211,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 56,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    212
+   ],
+   "pass1": [
+    212
+   ],
+   "outer": 212,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 56,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    213
+   ],
+   "pass1": [
+    213
+   ],
+   "outer": 213,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 56,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    214
+   ],
+   "pass1": [
+    214
+   ],
+   "outer": 214,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 56,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    215
+   ],
+   "pass1": [
+    215
+   ],
+   "outer": 215,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 56,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    216
+   ],
+   "pass1": [
+    216
+   ],
+   "outer": 216,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 56,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    217
+   ],
+   "pass1": [
+    217
+   ],
+   "outer": 217,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 57,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    218
+   ],
+   "pass1": [
+    218
+   ],
+   "outer": 218,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 57,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    219
+   ],
+   "pass1": [
+    219
+   ],
+   "outer": 219,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 56,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    220
+   ],
+   "pass1": [
+    220
+   ],
+   "outer": 220,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 89,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    221
+   ],
+   "pass1": [
+    221
+   ],
+   "outer": 221,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 85,
+   "tabs": "tabs Z4.826 kept"
+  }
+ ],
+ "lines_removed": 1305,
+ "lines_edited": 8465,
+ "lines_inserted": 0
+}

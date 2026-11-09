@@ -1,0 +1,50 @@
+{
+ "stock_in": 0.47244,
+ "label_z": 7.809,
+ "program_top": 12.700000000000001,
+ "labels": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9
+ ],
+ "parts": [
+  {
+   "ids": [
+    116
+   ],
+   "pass1": [
+    116
+   ],
+   "outer": 116,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 327,
+   "tabs": "tabs Z4.826 kept"
+  },
+  {
+   "ids": [
+    117
+   ],
+   "pass1": [
+    117
+   ],
+   "outer": 117,
+   "layout": "B",
+   "pass1_z": 5.873,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 313,
+   "tabs": "tabs Z4.826 kept"
+  }
+ ],
+ "lines_removed": 640,
+ "lines_edited": 1915,
+ "lines_inserted": 0
+}
