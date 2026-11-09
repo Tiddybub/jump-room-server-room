@@ -98,6 +98,14 @@ Scripts are in `scripts/` next to this file. Run them with `python3 -I` (needs P
    (e.g. `I1-5in-Depthchange.MMG`); send several together in one message, never zipped. Report in a short table: labels changed (count, depth), parts (pass 1 Z,
    pass 2 Z, extra laps removed), the tab decision, and anything left alone and why.
 
+## Machine: RichAuto controller
+
+- Files must be `.MMG` (it refused `.nc`/`.tap`). Keep names short (the I-sheet names, ~23
+  characters, work; a 55-character name was refused).
+- Keep the I-sheet layout: first line `N10M03`, no header comments, no G21/G90/G17/G94, no `S` word,
+  short op comments like `(POCKET 68)`, `%` as the last line. Programs from other sources (e.g. the
+  Joey window frame) need `cnc-renders/joey/richauto_format.py` to match it; motion lines stay as is.
+
 ## Watch-outs to tell the user
 
 - Pass 2 cuts about half the sheet thickness in one go; suggest watching the first part.
