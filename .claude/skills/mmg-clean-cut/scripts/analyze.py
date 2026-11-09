@@ -11,7 +11,6 @@ from PIL import Image, ImageDraw, ImageFont
 
 IN = 25.4
 LABEL_MAX_DEPTH = 3.2      # mm below the program's assumed top: shallower first floor = label
-LABEL_MAX_SIZE = 45.0      # mm: bigger shallow pockets are recesses (channels, plates), not text
 
 
 CORNER = 300.0            # mm: the sheet ID badge sits within this distance of the sheet's bottom-right
@@ -35,9 +34,8 @@ def classify(feats, top):
             f['kind'] = 'part-rough'
         elif op.startswith('OUTER'):
             f['kind'] = 'part-outer'
-        elif (op.startswith('POCKET') and f['first_floor'] >= top - LABEL_MAX_DEPTH
-              and max(f['bbox'][2] - f['bbox'][0], f['bbox'][3] - f['bbox'][1]) <= LABEL_MAX_SIZE):
-            f['kind'] = 'label'           # shallow and letter-sized: text, arrows, marks
+        elif op.startswith('POCKET') and f['first_floor'] >= top - LABEL_MAX_DEPTH:
+            f['kind'] = 'label'
         elif op.startswith('POCKET') and not inside_part(f) and in_corner(f):
             f['kind'] = 'label'           # sheet ID badge (I9, B2 ...): bottom-right corner, outside the parts
             f['sheet_id'] = True

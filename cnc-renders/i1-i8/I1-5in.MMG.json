@@ -3,6 +3,10 @@
  "label_z": 8.509,
  "program_top": 12.700000000000001,
  "labels": [
+  0,
+  1,
+  2,
+  3,
   4,
   5,
   6,
@@ -13,6 +17,12 @@
   11,
   12,
   13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
   20,
   21,
   22,
@@ -129,10 +139,10 @@
    "tabs": "tabs Z4.826 kept"
   }
  ],
- "ramps_to_plunges": 44,
- "ramp_outs_to_lifts": 31,
+ "ramps_to_plunges": 54,
+ "ramp_outs_to_lifts": 41,
  "plunge_feed": "program plunge feed",
  "lines_removed": 0,
- "lines_edited": 2898,
+ "lines_edited": 3088,
  "lines_inserted": 1649
 }
