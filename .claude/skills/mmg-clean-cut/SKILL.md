@@ -101,7 +101,8 @@ Scripts are in `scripts/` next to this file. Run them with `python3 -I` (needs P
 ## Watch-outs to tell the user
 
 - Pass 2 cuts about half the sheet thickness in one go; suggest watching the first part.
-- Slots and holes spiral down gradually and are not changed. Offer to rework them if they fuzz.
+- Holes and slots stay as the CAM wrote them (spiral / ramped): the user decided to keep them.
+  Don't convert them or offer to; deep pockets are also left unchanged.
 - Straight plunges use the program's plunge feed (200 ipm in I9) for the full depth: about 4 mm
   for labels, about 9 mm for each part pass. If the bit struggles, rerun with a lower
   `--plunge-feed` (for example 1270 = 50 ipm).
