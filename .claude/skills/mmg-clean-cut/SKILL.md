@@ -5,6 +5,8 @@ description: Fix fuzzy edges on CNC router programs (.MMG / G-code) cut with a c
 
 # MMG clean cut
 
+> Run `cnc-sheet-standard` first (48 x 96 sheet, zero bottom-left, tabs, preview picture).
+
 Rework a CNC program so a **compression bit** leaves clean edges, without changing the shape of
 anything. Cutting paths keep their X/Y; Z values change, ramps become straight plunges, and an
 extra lap outside each part is removed.
