@@ -68,6 +68,70 @@ class _Path:
                    for q in self.cells.get((cx + dx, cy + dy), ()))
 
 
+def _seg_t(p, a, b):
+    """(distance from p to segment ab, position 0..1 of the closest point)"""
+    ax, ay = b[0] - a[0], b[1] - a[1]
+    L2 = ax * ax + ay * ay
+    t = 0.0 if L2 == 0 else max(0.0, min(1.0, ((p[0] - a[0]) * ax + (p[1] - a[1]) * ay) / L2))
+    return math.dist(p, (a[0] + t * ax, a[1] + t * ay)), t
+
+
+def _lap_close(moves, s, P0, z):
+    """walk from moves[s] (a lap at depth z that starts at P0) to where the path comes back to P0.
+    Returns (j, mid): moves[j] reaches P0; mid = it passes P0 part-way (straight moves only).
+    None if the lap leaves depth z first, or closes part-way along an arc."""
+    run = 0.0
+    for j in range(s, len(moves)):
+        m = moves[j]
+        if abs(m[4] - z) > 1e-6 or abs(m[7] - z) > 1e-6:
+            return None
+        a, b = (m[2], m[3]), (m[5], m[6])
+        if run > 20.0:
+            if math.dist(b, P0) < 0.002:
+                return j, False
+            if m[1] == 1:
+                d, t = _seg_t(P0, a, b)
+                if d < 0.002 and 0 < t < 1:
+                    return j, True
+            elif m[1] in (2, 3) and any(math.dist(q, P0) < 0.05 for q in move_pts(m)[1:-1]):
+                return None
+        run += move_len(m)
+    return None
+
+
+def _set_xy(line, x, y):
+    """the same move, ending at x, y"""
+    t = re.sub(r'[XY]-?\d+\.?\d*', '', line)
+    m = re.search(r'G[0-3](?!\d)', t) or re.match(r'N\d+', t)
+    k = m.end() if m else 0
+    return t[:k] + f'X{x:.3f}Y{y:.3f}' + t[k:]
+
+
+def _on_lap(rest, lap, tol=0.01):
+    """every point of `rest` lies on `lap` at the same Z (so cutting `rest` again removes nothing new).
+    Flat moves are sampled every 1 mm; straight up/down moves must match one in the lap."""
+    flat = [(m, move_pts(m)) for m in lap if abs(m[7] - m[4]) < 1e-9 and _xy(m)]
+    vert = [m for m in lap if not _xy(m)]
+    for m in rest:
+        if not _xy(m):
+            if not any(math.dist((v[5], v[6]), (m[5], m[6])) < tol and abs(v[4] - m[4]) < 1e-6
+                       and abs(v[7] - m[7]) < 1e-6 for v in vert):
+                return False
+            continue
+        if abs(m[7] - m[4]) > 1e-9:
+            return False                       # a ramp: not a plain repeat
+        P = move_pts(m)
+        samples = []
+        for a, b in zip(P, P[1:]):
+            n = max(1, int(math.dist(a, b)))
+            samples += [(a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n) for k in range(n + 1)]
+        for q in samples:
+            if not any(abs(fm[7] - m[7]) < 1e-6 and
+                       any(_seg_t(q, c, d)[0] < tol for c, d in zip(fp, fp[1:])) for fm, fp in flat):
+                return False
+    return True
+
+
 def _fmt_move(m, z, fword):
     g = 'G%d' % m[1]
     s = f'{g}X{m[5]:.3f}Y{m[6]:.3f}Z{z:.3f}'
@@ -112,6 +176,7 @@ def convert_parts(feats, lines, ptop, real_top, pass1, programmed_tabs, edits, d
         T = min(floorsO)
         zp1 = round(real_top - (real_top - T) / 2, 3) if pass1 == 'half' else round(real_top - float(pass1) * 25.4, 3)
         p1_moves, outer, kind, A1, F1 = [], mv, None, None, None
+        F1deep, p1_extra = None, ''
 
         if len(cl) == 2:                                             # layout A
             P = cl[0] if cl[1] is O else cl[1]
@@ -119,6 +184,22 @@ def convert_parts(feats, lines, ptop, real_top, pass1, programmed_tabs, edits, d
             if not fl or P['start'] > O['start']:
                 log(f'part {ids}: pass-1 feature has no floor or comes after the through cut - left as is'); continue
             kind, p1_moves, A1, F1 = 'A', P['cut'], P['plunge'], fl[0]
+            if len(fl) > 1:
+                # the pass-1 feature steps down more than once (Jack Drain: 2 laps at Z11.43, a ramp,
+                # 2 laps at Z3.81): pass 1 = one lap at its first level; the rest goes
+                pc = P['cut']
+                s0 = next((k for k, m in enumerate(pc) if abs(m[4] - fl[0]) < 1e-6 and abs(m[7] - fl[0]) < 1e-6 and _xy(m)), None)
+                cl0 = _lap_close(pc, s0, (pc[s0][2], pc[s0][3]), fl[0]) if s0 is not None else None
+                if cl0 is None:
+                    log(f'part {ids}: pass-1 feature has levels {fl} and its first lap does not close - left as is'); continue
+                j0, mid0 = cl0
+                if mid0:
+                    edits[pc[j0][0]] = _set_xy(get(pc[j0][0]), pc[s0][2], pc[s0][3])
+                for ln in range(pc[j0][0] + 1, P['end'] + 1):
+                    drop.add(ln)
+                p1_moves = pc[:j0 + 1]
+                F1deep = min(fl)
+                p1_extra = f'; pass-1 levels {fl} -> one lap'
         else:
             upper = [z for z in floorsO if z > T + THRU_MAX]
             # the ramp that goes down to the through depth
@@ -200,10 +281,42 @@ def convert_parts(feats, lines, ptop, real_top, pass1, programmed_tabs, edits, d
                     inserts.setdefault(outer[i][0], []).append(f'G1X{connector[0]:.3f}Y{connector[1]:.3f}')
                 break
 
+        # ---- the through lap cut twice on the same path at the same depth (Jack Drain): drop the repeat
+        repeat = 0
+        e = next((k for k, m in enumerate(keep) if abs(m[7] - T) < 1e-6 and (m[4] > T + 1e-6 or _xy(m))), None)
+        if e is not None:
+            E = (keep[e][5], keep[e][6])
+            s1 = e + 1 if keep[e][4] > T + 1e-6 else e
+            # walk the lap; tab lifts leave depth T, so follow the whole path, not one level
+            run, close = 0.0, None
+            for j in range(s1, len(keep)):
+                m = keep[j]
+                if run > 20.0 and abs(m[4] - T) < 1e-6 and abs(m[7] - T) < 1e-6:
+                    if math.dist((m[5], m[6]), E) < 0.002:
+                        close = (j, False); break
+                    if m[1] == 1:
+                        d, t = _seg_t(E, (m[2], m[3]), (m[5], m[6]))
+                        if d < 0.002 and 0 < t < 1:
+                            close = (j, True); break
+                run += move_len(m)
+            if close:
+                j, mid = close
+                m = keep[j]
+                lap1 = keep[s1:j] + [(m[0], m[1], m[2], m[3], m[4], E[0], E[1], m[7], m[8], m[9])]
+                rest = ([(m[0], m[1], E[0], E[1], m[4], m[5], m[6], m[7], m[8], m[9])] if mid else []) + keep[j + 1:]
+                lenL = sum(move_len(x) for x in lap1)
+                if rest and sum(move_len(x) for x in rest) <= lenL + 0.1 and _on_lap(rest, lap1):
+                    if mid:
+                        edits[m[0]] = _set_xy(get(m[0]), E[0], E[1])
+                    for ln in range(m[0] + 1, O['end'] + 1):
+                        drop.add(ln)
+                    repeat = len(keep) - j - 1 + (1 if mid else 0)
+                    keep = keep[:j + 1]
+
         # ---- pass 1
         if kind in ('A', 'B'):
             remap(p1_moves, A1, F1, zp1)
-            p1_note = f'pass 1 Z{F1} -> Z{zp1}'
+            p1_note = f'pass 1 Z{F1} -> Z{zp1}{p1_extra}'
         else:
             pl = next((k for k, m in enumerate(mv) if not _xy(m) and m[7] < m[4]), None)
             A = mv[pl][7] if pl is not None else None
@@ -242,15 +355,18 @@ def convert_parts(feats, lines, ptop, real_top, pass1, programmed_tabs, edits, d
         if tabs:
             tz = tabs[0]
             lifted = any(abs(m[7] - m[4]) < 1e-9 and tz - 1e-6 <= m[7] < ptop and move_len(m) >= 1.0 for m in p1_moves) or kind == 'C'
-            if not programmed_tabs and kind in ('A', 'B') and not lifted and F1 < tz:
+            Fd = F1deep if F1deep is not None else F1     # deepest level the old pass 1 reached
+            if not programmed_tabs and kind in ('A', 'B') and not lifted and Fd < tz:
                 for m in keep:
                     mz = ZWORD.search(get(m[0]))
                     if mz and abs(float(mz.group(1)) - tz) < 1e-6:
-                        edits[m[0]] = set_z(get(m[0]), F1)
-                tab_note = f'tabs Z{tz} -> Z{F1} (thickness the old pass 1 left)'
+                        edits[m[0]] = set_z(get(m[0]), Fd)
+                tab_note = f'tabs Z{tz} -> Z{Fd} (thickness the old pass 1 left)'
             else:
                 tab_note = f'tabs Z{tz} kept'
         rows.append({'ids': ids, 'pass1': [g['id'] for g in cl if g is not O] or [O['id']], 'outer': O['id'],
-                     'layout': kind, 'pass1_z': zp1, 'through_z': T, 'extra_lap_moves_removed': removed, 'tabs': tab_note})
-        log(f'part {ids} layout {kind}: {p1_note}, pass 2 through Z{T}; extra lap removed: {removed} moves; {tab_note}')
+                     'layout': kind, 'pass1_z': zp1, 'through_z': T, 'extra_lap_moves_removed': removed,
+                     'repeat_lap_moves_removed': repeat, 'tabs': tab_note})
+        log(f'part {ids} layout {kind}: {p1_note}, pass 2 through Z{T}; extra lap removed: {removed} moves; '
+            f'repeat through lap removed: {repeat} moves; {tab_note}')
     return rows

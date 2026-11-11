@@ -1,7 +1,13 @@
 # Shop notes for Claude
 
-- **Any CNC cut work** (making, editing, fixing, extracting or previewing a cut, sheet, part,
-  .MMG or G-code file): run the `cnc-sheet-standard` skill FIRST. It covers the 48 x 96 in sheet,
-  zero at the bottom-left, a couple of tabs per part, RichAuto .MMG only, and the preview picture
-  that goes with every file. Then use `mmg-clean-cut` for depths, passes and plunges.
+- **Any CNC cut work** (creating, editing, fixing, extracting or previewing cut parts, a sheet,
+  .MMG or G-code): run the `cnc-sheet-standard` skill FIRST, every time
+  (`scripts/standard.py`). It covers:
+  - the 48 x 96 in sheet with zero at the bottom-left;
+  - parts never rotated;
+  - a couple of tabs per part;
+  - labels exactly 0.165 in deep (shallow ones are a programmer error: tell the user);
+  - 2 passes per part, set for the real thickness (1/2 in or 18 mm);
+  - RichAuto .MMG only;
+  - a preview picture with every file.
 - Keep replies short and to the point.

@@ -5,7 +5,8 @@ description: Fix fuzzy edges on CNC router programs (.MMG / G-code) cut with a c
 
 # MMG clean cut
 
-> Run `cnc-sheet-standard` first (48 x 96 sheet, zero bottom-left, tabs, preview picture).
+> Normally run through `cnc-sheet-standard` (`scripts/standard.py`), which calls this skill and adds the
+> 48 x 96 sheet / zero corner / tabs / label-depth / preview checks.
 
 Rework a CNC program so a **compression bit** leaves clean edges, without changing the shape of
 anything. Cutting paths keep their X/Y; Z values change, ramps become straight plunges, and an
@@ -39,6 +40,11 @@ why shallow labels came out fuzzy. Pick `--stock-in` from the file name / the to
   (unchanged). Layouts recognised (`scripts/parts.py`):
   - **A** pass-1 lap and through cut are separate features with the same outline: ROUGHING +
     OUTER CUTS (I6-I9), or an onion-skin OUTER op + a through OUTER op (I5). Pass-1 Z rescaled.
+  - **A, several pass-1 levels**: the pass-1 feature steps down more than once (Jack Drain: 2 laps at
+    Z11.43, a ramp, 2 laps at Z3.81). Pass 1 keeps only its first lap, moved to half depth.
+  - **Repeated through lap**: the through lap is cut twice on the same path at the same depth,
+    tabs included (Jack Drain). The repeat is removed only if every point of it lies on the first
+    lap at the same Z.
   - **B** one feature: ramp, lap at a pass-1 floor, ramp, through laps (I2-I4). Same result.
   - **C** one feature with a single through lap (I1): a copy of it at the pass-1 depth is inserted
     first, then the bit lifts to its plunge height, goes back to the start and runs the original.

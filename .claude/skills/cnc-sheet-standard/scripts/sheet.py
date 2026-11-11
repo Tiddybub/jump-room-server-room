@@ -14,6 +14,8 @@ IN = 25.4
 SHEET_W = 48 * IN   # X, 1219.2 mm
 SHEET_L = 96 * IN   # Y, 2438.4 mm
 THROUGH_Z = 0.3     # a cut at or below this Z goes through the sheet
+LABEL_DEPTH = 0.165 * IN   # every label: 0.165 in below the REAL stock top, one pass
+PART_PASSES = 2            # every part outline: two depth passes
 MIN_PART_MM = 50.0  # through cuts smaller than this are holes/slugs, not parts
 
 
@@ -119,8 +121,57 @@ def through_features(feats, top):
     for t in th:
         t['level'] = sum(inside(t['bbox'], o['bbox']) for o in th if o is not t)
         t['kind'] = 'part' if t['level'] % 2 == 0 else 'cutout'
+        if (t['f']['op'] or '').upper().startswith(('SLOT', 'HOLE')):
+            t['kind'] = 'slot'   # holes and slots stay as the CAM wrote them
     return th
 
 
 def inch(mm):
     return mm / IN
+
+
+def real_stock_mm(top, stock_in=None):
+    """real sheet thickness. The shop runs 1/2 in (0.5 in) and 3/4 in Baltic birch / bamboo that is
+    really 18 mm (0.71 in). The CAM programs nominal stock (top Z12.700 or Z19.050)."""
+    if stock_in:
+        return stock_in * IN, 'given'
+    if abs(top - 12.7) < 0.3:
+        return 0.5 * IN, '1/2 in sheet'
+    if abs(top - 19.05) < 0.3:
+        return 0.71 * IN, '3/4 in sheet = 18 mm real'
+    return top, 'unknown sheet - CONFIRM the thickness'
+
+
+LABEL_ZONE = 6.5   # mm: a POCKET engraving whose deepest cut is this close to the real top is a label
+
+
+def labels(feats, top, real):
+    """label features: shallow POCKET engravings (text, marks) and the sheet ID badge
+    (mmg-clean-cut's rules, plus labels already cut to 0.165 in by mmg-clean-cut)"""
+    from analyze import classify
+    classify(feats, top)
+    return [f for f in feats if f.get('kind') == 'label'
+            or (f.get('kind') == 'pocket' and f['zmin'] >= real - LABEL_ZONE)]
+
+
+def part_passes(feats, t, top):
+    """depth levels the outline of part t is cut at (every feature on the same outline,
+    tab levels and relinks above the wood not counted)"""
+    from gcode import floors
+    bx = t['bbox']
+    tab_z = {round(r['z'], 3) for r in t['tabs']}
+    lap = sum(math.dist(a, b) for a, b in zip(final_lap(t['f']), final_lap(t['f'])[1:]))
+    lap = min(lap, 2 * (bx[2] - bx[0] + bx[3] - bx[1]))   # in case the lap didn't close
+    lv = {}
+    for f in feats:
+        if f is not t['f']:
+            if not (f['op'] or '').upper().startswith(('OUTER', 'ROUGH')):
+                continue   # a pocket the size of the part is not an outline pass
+            fb = path_bounds(f['cut'])
+            if max(abs(a - b) for a, b in zip(fb, bx)) > 3.0:
+                continue
+        for z in floors(f, top):
+            if round(z, 3) not in tab_z:
+                lv[round(z, 3)] = lv.get(round(z, 3), 0.0) + f['flat'][z]
+    # a pass goes most of the way round; short levels are lifts over tabs or lead-ins
+    return sorted((z for z, L in lv.items() if L >= 0.5 * lap), reverse=True)
