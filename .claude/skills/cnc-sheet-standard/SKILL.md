@@ -75,6 +75,8 @@ bottom-right.
 
 ## RichAuto file rules
 
+- If the user names the file, use their name exactly but keep the `.MMG` extension (proven on the
+  controller). Otherwise use `<name>-Depthchange.MMG`.
 - `.MMG` with a short name: 23 characters or fewer including `-Depthchange.MMG`, no spaces.
   A 55-character name was refused.
 - Use the same layout as the I-sheets:
@@ -117,7 +119,7 @@ bottom-right.
 
 ## Reference jobs
 
-- **Jack Drain DFS (2026-11)**, `cnc-renders/jack-drain/JackDFS-Depthchange.MMG`:
+- **Jack Drain DFS (2026-11)**, `cnc-renders/jack-drain/DFS NO SINK SINGLE.MMG` (user's name):
   - The whole DFS was cut out of `Jack Drain 75bam.MMG`, which also holds a DFS with the sink cut out.
   - It was moved X -592.17 mm to the zero corner.
   - The labels came in at 0.060 in in real 18 mm stock, a programmer error. Now 0.165 in.
