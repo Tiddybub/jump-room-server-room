@@ -9,7 +9,7 @@ One command runs the whole standard. It uses `mmg-clean-cut` for depths, passes 
 
 ```bash
 python3 .claude/skills/cnc-sheet-standard/scripts/standard.py IN.MMG cnc-renders/<job>/ \
-    --name SHORT [--stock-in 0.5|0.71] [--title "Job name"]
+    --name SHORT [--file-name "User's Name.MMG"] [--stock-in 0.5|0.71] [--title "Job name"]
 ```
 
 It writes `SHORT-Depthchange.MMG` and `SHORT-Depthchange.png`. If any step fails it stops, and
@@ -17,8 +17,10 @@ nothing gets delivered. The steps:
 
 1. **Check the file as the programmer sent it.** It prints `*** TELL THE USER ***` when labels
    are shallow. Say so first in the reply: it's the programmer's error and we fix it here.
-2. **Move the job to the X0 Y0 corner** if its cuts start more than 3 in away. It only shifts the
-   job sideways, never rotates it, and proves every line changed by exactly the shift.
+2. **Move the job to the X0 Y0 corner** if its cuts start more than 3 in away, or if the bit runs
+   off the sheet's left or bottom edge (COC came in flush with the corner, with the bit 1/4 in off
+   the sheet). It only shifts the job sideways, never rotates it, and proves every line changed by
+   exactly the shift.
 3. **Fix depths and passes** with `mmg-clean-cut` for the real thickness: labels 0.165 in in one
    pass, parts in 2 passes, straight plunges.
 4. **Verify the shapes are unchanged.** Must say `ALL CHECKS PASSED`.
@@ -125,5 +127,13 @@ bottom-right.
   - The labels came in at 0.060 in in real 18 mm stock, a programmer error. Now 0.165 in.
   - The outline came in as 3 depths with 2 laps each. Now 2 passes (Z8.890, then through Z-0.254).
   - It keeps its 4 tabs.
+- **COC (2026-11)**, `cnc-renders/coc/Coc.MMG` (user's name), from Drive `COC-5in.MMG`:
+  - One part, 38.8 x 28.2 in.
+  - The CAM was set for 0.47 in stock. It was run as 0.5 in (the shop's 1/2 in).
+  - The labels came in at 0.130 in, a programmer error. Now 0.165 in.
+  - Moved +12.35 mm in X and Y so the bit stays on the sheet.
+  - It already had 2 passes. It keeps its 8 tabs.
+  - verify reports label 0 as 16 mm2 "no longer cut". That's a clean-up path inside the O; over
+    the whole word the letters are identical. Check the whole word before worrying about one feature.
 - **I1-I9 and Joey**: full CAM nests that already cut well. Leave them as they are. One note:
   I2 has a small 3 x 3 in part with only 1 tab, and it cut fine.

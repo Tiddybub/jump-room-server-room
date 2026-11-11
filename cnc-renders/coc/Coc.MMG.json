@@ -1,0 +1,34 @@
+{
+ "stock_in": 0.5,
+ "label_z": 8.509,
+ "program_top": 11.938,
+ "labels": [
+  0,
+  1,
+  2,
+  3
+ ],
+ "parts": [
+  {
+   "ids": [
+    44
+   ],
+   "pass1": [
+    44
+   ],
+   "outer": 44,
+   "layout": "B",
+   "pass1_z": 6.223,
+   "through_z": -0.254,
+   "extra_lap_moves_removed": 0,
+   "repeat_lap_moves_removed": 0,
+   "tabs": "tabs Z4.826 kept"
+  }
+ ],
+ "ramps_to_plunges": 124,
+ "ramp_outs_to_lifts": 4,
+ "plunge_feed": "program plunge feed",
+ "lines_removed": 0,
+ "lines_edited": 451,
+ "lines_inserted": 0
+}

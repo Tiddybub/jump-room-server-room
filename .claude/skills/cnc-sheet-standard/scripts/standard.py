@@ -9,8 +9,9 @@
   5. check the result against the standard (must say RESULT: OK)
   6. preview picture of the 48 x 96 board with the cut on it
 
-usage: python3 standard.py IN.MMG OUT_DIR --name SHORTNAME [--stock-in 0.71|0.5] [--title "..."]
-writes OUT_DIR/SHORTNAME-Depthchange.MMG (+ .json report) and OUT_DIR/SHORTNAME-Depthchange.png
+usage: python3 standard.py IN.MMG OUT_DIR --name SHORTNAME [--file-name "User Name.MMG"]
+                           [--stock-in 0.71|0.5] [--title "..."]
+writes OUT_DIR/SHORTNAME-Depthchange.MMG (or --file-name) + .json report + .png preview
 """
 import argparse
 import os
@@ -41,10 +42,15 @@ def main():
     ap.add_argument('--name', required=True, help='short (RichAuto: about 23 characters with -Depthchange.MMG)')
     ap.add_argument('--stock-in', type=float, help='real thickness; default from the CAM top (1/2 -> 0.5, 3/4 -> 0.71)')
     ap.add_argument('--title')
+    ap.add_argument('--file-name', help="the user's own name for the file (used as given, .MMG kept)")
     ap.add_argument('--tool-mm', type=float, default=6.0)
     a = ap.parse_args()
 
-    out = os.path.join(a.out_dir, f'{a.name}-Depthchange.MMG')
+    fname = a.file_name or f'{a.name}-Depthchange.MMG'
+    if not fname.upper().endswith('.MMG'):
+        fname += '.MMG'
+    fname = fname[:-4] + '.MMG'
+    out = os.path.join(a.out_dir, fname)
     if len(os.path.basename(out)) > 23:
         print(f'WARNING: {os.path.basename(out)} is {len(os.path.basename(out))} characters; RichAuto took 23. Use a shorter --name.')
     os.makedirs(a.out_dir, exist_ok=True)
@@ -64,7 +70,8 @@ def main():
     try:
         src = a.src
         x0, y0, _, _ = edge_bounds(in_wood(feats, top), a.tool_mm)
-        if x0 / IN > MAX_CORNER_GAP_IN or y0 / IN > MAX_CORNER_GAP_IN:
+        if x0 / IN > MAX_CORNER_GAP_IN or y0 / IN > MAX_CORNER_GAP_IN or x0 < 0 or y0 < 0:
+            # too far from the corner, or the bit runs off the sheet's left/bottom edge
             print('== 2. move to the X0 Y0 corner (no rotation)')
             placed = os.path.join(work, 'placed.MMG')
             if run([sys.executable, os.path.join(HERE, 'place_on_sheet.py'), src, placed,
