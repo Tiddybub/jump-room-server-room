@@ -53,8 +53,13 @@ bottom-right.
      edges to the outside of the bit.
    - Full CAM nests with 1-3 in margins stay where they are.
    - Keep the CAM's own op order (labels, holes, slots, then outlines).
-3. **Never change rotation (or mirror).** The programmer rotates parts for a reason. Only move the
-   whole job sideways.
+3. **Never change rotation on your own (and never mirror).** The programmer rotates parts for a
+   reason.
+   - Only move the whole job sideways.
+   - Turn it only when the user asks. Use `rotate_job.py IN OUT --deg 90|-90|180`
+     (90 = counter-clockwise from above), then `standard.py` on the result.
+   - A rotation keeps the shape, the G2/G3 cut direction and the label text. The script proves
+     every position and arc centre.
 4. **Labels are exactly 0.165 in deep** below the real top, in one pass. That includes the sheet
    ID badge.
    - **If a file comes in with labels shallower than 0.165 in, tell the user.** It's the
@@ -104,6 +109,8 @@ bottom-right.
   - label depth below the real top, and labels cut in more than one pass;
   - passes per part: levels that go most of the way round, ignoring tab lifts;
   - tabs per part.
+- `rotate_job.py`: turns the whole job 90, -90 or 180 degrees, only when the user asks. It turns
+  the X/Y and I/J words and proves every position and arc centre.
 - `place_on_sheet.py`: shifts every X/Y word by the same amount.
   - Refuses G91, G92 and G53-G59.
   - Checks every arc is I/J-relative.
@@ -131,7 +138,8 @@ bottom-right.
   - One part, 38.8 x 28.2 in.
   - The CAM was set for 0.47 in stock. It was run as 0.5 in (the shop's 1/2 in).
   - The labels came in at 0.130 in, a programmer error. Now 0.165 in.
-  - Moved +12.35 mm in X and Y so the bit stays on the sheet.
+  - The user asked for it turned so the slits run vertical: it's turned 90 degrees
+    counter-clockwise, then placed at the 1/4 in corner margin. Now 28.2 in wide x 38.8 in long.
   - It already had 2 passes. It keeps its 8 tabs.
   - verify reports label 0 as 16 mm2 "no longer cut". That's a clean-up path inside the O; over
     the whole word the letters are identical. Check the whole word before worrying about one feature.
